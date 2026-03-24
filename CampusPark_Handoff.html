@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusPark – CS 250 Midterm Handoff</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Syne:wght@700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --p:#4F46E5;--pl:#818cf8;--pd:#3730a3;
+  --g:#22C55E;--a:#F59E0B;--r:#EF4444;--pu:#a855f7;
+  --bg:#0a0818;--s:rgba(255,255,255,0.06);--b:rgba(255,255,255,0.12);
+  --t:#fff;--tm:#8b92a5;--ts:#5c6475;--cx:#a0a8b8;--mono:'Space Mono',monospace
+}
+html,body{height:100%;font-family:'Geist',sans-serif;background:var(--bg);color:var(--t);overflow:hidden;user-select:none}
+
+/* ── ANIMATED BG ── */
+.bg{position:fixed;inset:0;z-index:0;background:#07060e}
+
+/* ── GRID OVERLAY ── */
+.grid{position:fixed;inset:0;z-index:0;opacity:.025;
+  background-image:linear-gradient(rgba(148,163,184,1) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,184,1) 1px,transparent 1px);
+  background-size:60px 60px}
+
+/* ── SUBTLE DEPTH ORBS ── */
+.orb{position:fixed;border-radius:50%;filter:blur(120px);z-index:0;pointer-events:none;animation:orbFloat 18s ease-in-out infinite alternate}
+.orb1{width:700px;height:700px;background:rgba(79,70,229,.07);top:-250px;left:-250px}
+.orb2{width:600px;height:600px;background:rgba(99,102,241,.05);bottom:-200px;right:-200px;animation-delay:-9s}
+.orb3{width:400px;height:400px;background:rgba(79,70,229,.04);top:50%;left:50%;transform:translate(-50%,-50%);animation-delay:-4s}
+@keyframes orbFloat{0%{transform:translate(0,0) scale(1)}100%{transform:translate(30px,20px) scale(1.05)}}
+
+/* ── PRESENTATION ── */
+#pres{position:relative;width:100vw;height:100vh;z-index:1}
+
+/* ── SLIDES ── */
+.slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  padding:0 80px;opacity:0;pointer-events:none;
+  transition:opacity .55s cubic-bezier(.4,0,.2,1),transform .55s cubic-bezier(.4,0,.2,1);
+  transform:translateY(24px) scale(.99)}
+.slide.active{opacity:1;pointer-events:all;transform:translateY(0) scale(1)}
+.slide.exit-up{opacity:0;transform:translateY(-24px) scale(.99)}
+
+/* ── SLIDE INNER ANIMATIONS ── */
+.slide.active .a1{animation:fadeUp .6s .05s both}
+.slide.active .a2{animation:fadeUp .6s .15s both}
+.slide.active .a3{animation:fadeUp .6s .25s both}
+.slide.active .a4{animation:fadeUp .6s .35s both}
+.slide.active .a5{animation:fadeUp .6s .45s both}
+.slide.active .a6{animation:fadeUp .6s .55s both}
+.slide.active .fromL{animation:fromLeft .6s .2s both}
+.slide.active .fromR{animation:fromRight .6s .2s both}
+.slide.active .scaleIn{animation:scaleIn .5s .1s both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fromLeft{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes fromRight{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes shimmer{0%{background-position:-200%}100%{background-position:200%}}
+@keyframes diBreath{0%,100%{box-shadow:0 0 0 1px rgba(255,255,255,.07)}50%{box-shadow:0 0 8px rgba(100,116,139,.3),0 0 0 1px rgba(148,163,184,.15)}}
+@keyframes gradientShift{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+@keyframes chipShimmer{0%{transform:translateX(-100%)}45%,100%{transform:translateX(200%)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes techIn{from{opacity:0;transform:translateY(20px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes heroWipe{0%{transform:translateX(-102%)}38%,62%{transform:translateX(0%)}100%{transform:translateX(102%)}}
+@keyframes heroAppear{from{opacity:0}to{opacity:1}}
+@keyframes iconSpin{0%,100%{transform:rotate(0deg)}50%{transform:rotate(12deg)}}
+.cv-tech{display:flex;flex-direction:column;align-items:center;gap:10px;padding:22px 14px 18px;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:16px;
+  cursor:default;transition:background .2s,border-color .2s,transform .2s;
+  animation:techIn .5s cubic-bezier(.4,0,.2,1) both}
+.cv-tech:hover{transform:translateY(-4px);background:rgba(255,255,255,.07)}
+.cv-tech .cv-icon{width:40px;height:40px;display:flex;align-items:center;justify-content:center;transition:transform .3s}
+.cv-tech:hover .cv-icon{transform:scale(1.15)}
+.cv-tech .cv-name{font-size:11px;font-weight:700;color:#e8e8f0;font-family:'Geist',sans-serif;text-align:center}
+.cv-tech .cv-ver{font-size:9px;color:#4a5060;font-family:'Space Mono',monospace;letter-spacing:.3px}
+@keyframes scanMove{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+@keyframes borderGlow{0%,100%{box-shadow:0 0 0 1px #555,0 40px 100px rgba(0,0,0,.8),0 0 50px rgba(60,60,62,.6),inset 0 1px 0 rgba(255,255,255,.12)}50%{box-shadow:0 0 0 1px #6a6a6e,0 40px 100px rgba(0,0,0,.8),0 0 60px rgba(79,70,229,.15),inset 0 1px 0 rgba(255,255,255,.18)}}
+.slide.active .a7{animation:fadeUp .6s .65s both}
+.slide.active .a8{animation:fadeUp .6s .75s both}
+.slide.active .a9{animation:fadeUp .6s .85s both}
+
+/* ── NAV ── */
+.nav-btn{position:fixed;top:50%;transform:translateY(-50%);z-index:100;
+  width:48px;height:48px;border-radius:50%;border:1px solid var(--b);
+  background:rgba(255,255,255,.08);backdrop-filter:blur(10px);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;font-size:18px;color:var(--t)}
+.nav-btn:hover{background:rgba(79,70,229,.35);border-color:var(--pl);transform:translateY(-50%) scale(1.1)}
+#prev{left:20px}#next{right:20px}
+
+/* ── PROGRESS ── */
+#dots{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+  display:flex;gap:8px;z-index:100}
+.dot{width:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.25);
+  transition:all .3s;cursor:pointer}
+.dot.active{width:24px;background:var(--p)}
+#slide-counter{position:fixed;bottom:22px;right:30px;z-index:100;
+  font-size:10px;color:var(--cx);letter-spacing:1px;font-family:var(--mono)}
+
+/* ── SLIDE LABEL ── */
+.slide-label{position:fixed;top:24px;left:50%;transform:translateX(-50%);
+  z-index:100;font-size:9px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--cx);font-weight:400;font-family:var(--mono)}
+
+/* ── SHARED COMPONENTS ── */
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;
+  font-size:11px;font-weight:600;letter-spacing:.5px;position:relative;overflow:hidden}
+.chip::after{content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);
+  transform:translateX(-100%);animation:chipShimmer 4s ease-in-out infinite}
+.chip-p{background:rgba(79,70,229,.25);color:var(--pl);border:1px solid rgba(79,70,229,.4)}
+.chip-g{background:rgba(34,197,94,.2);color:#4ade80;border:1px solid rgba(34,197,94,.35)}
+.chip-a{background:rgba(245,158,11,.2);color:#fbbf24;border:1px solid rgba(245,158,11,.35)}
+.chip-r{background:rgba(239,68,68,.2);color:#f87171;border:1px solid rgba(239,68,68,.35)}
+.chip-pu{background:rgba(168,85,247,.2);color:#c084fc;border:1px solid rgba(168,85,247,.35)}
+
+.card{background:var(--s);border:1px solid var(--b);border-radius:16px;padding:20px;backdrop-filter:blur(10px)}
+.glass{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(12px)}
+
+/* ── PHONE FRAME:iPhone 17 Pro (Titanium) ── */
+.phone{width:220px;height:460px;background:#0d0d10;border-radius:46px;
+  border:8px solid #3c3c3e;position:relative;overflow:hidden;flex-shrink:0;
+  box-shadow:0 0 0 1px #555,0 40px 100px rgba(0,0,0,.8),0 0 60px rgba(79,70,229,.18),
+  inset 0 1px 0 rgba(255,255,255,.14),inset 0 -1px 0 rgba(0,0,0,.5);
+  animation:float 5s ease-in-out infinite,borderGlow 8s ease-in-out infinite}
+/* Dynamic Island */
+.phone::before{content:'';position:absolute;top:10px;left:50%;transform:translateX(-50%);
+  width:66px;height:24px;background:#080808;border-radius:12px;z-index:50;
+  box-shadow:0 0 0 1px rgba(255,255,255,.06);animation:diBreath 4s ease-in-out infinite}
+/* Home Indicator */
+.phone::after{content:'';position:absolute;bottom:7px;left:50%;transform:translateX(-50%);
+  width:80px;height:5px;background:rgba(255,255,255,.24);border-radius:3px;z-index:50}
+.phone-screen{position:absolute;inset:0;border-radius:38px;overflow:hidden;display:flex;flex-direction:column}
+/* Subtle scanline texture on screen */
+.phone-screen::before{content:'';position:absolute;inset:0;z-index:20;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.03) 3px,rgba(0,0,0,.03) 4px)}
+.phone-sb{height:44px;display:flex;align-items:center;justify-content:space-between;
+  padding:12px 18px 0 20px;font-size:8px;font-weight:700;flex-shrink:0;color:rgba(255,255,255,.9)}
+
+/* ── PHONE SCREENS ── */
+/* LOGIN */
+.screen-login{background:linear-gradient(175deg,#1a1230 0%,#0d0818 100%)}
+.screen-login .bg-img{position:absolute;inset:0;background:
+  radial-gradient(ellipse at 30% 20%,rgba(79,70,229,.25) 0%,transparent 60%),
+  radial-gradient(ellipse at 70% 80%,rgba(168,85,247,.15) 0%,transparent 60%);pointer-events:none}
+.screen-login .content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;
+  padding:20px 14px 16px;flex:1;justify-content:center;gap:8px}
+.logo-ph{font-size:22px;font-weight:900;letter-spacing:-0.5px}
+.logo-ph span{color:#4F46E5}
+.tagline-ph{font-size:7.5px;color:rgba(255,255,255,.6);margin-bottom:8px;letter-spacing:.3px}
+.dropdown-ph{width:100%;padding:9px 12px;border-radius:10px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);
+  font-size:8px;color:#fff;display:flex;justify-content:space-between;align-items:center}
+.dropdown-ph.selected{background:rgba(79,70,229,.2);border-color:rgba(79,70,229,.5)}
+.btn-ph{width:100%;padding:10px;border-radius:10px;background:#4F46E5;
+  font-size:8.5px;font-weight:700;color:#fff;text-align:center;margin-top:6px;letter-spacing:.5px}
+
+/* HOME */
+.screen-home{background:#0d0818}
+.home-hdr{background:rgba(15,12,30,.95);padding:8px 12px;display:flex;
+  justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.08)}
+.home-hdr .title{font-size:8px;font-weight:700;line-height:1.2}
+.home-hdr .title span{font-size:6px;color:rgba(255,255,255,.5);font-weight:400;display:block}
+.home-icons{display:flex;gap:5px}
+.home-icon{width:22px;height:22px;border-radius:8px;background:rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;font-size:9px;position:relative}
+.badge{position:absolute;top:-3px;right:-3px;width:10px;height:10px;border-radius:5px;
+  background:#EF4444;font-size:5px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;border:1px solid #0d0818}
+.ps-list{flex:1;overflow:hidden;padding:6px;display:flex;flex-direction:column;gap:5px}
+.ps-card{background:rgba(255,255,255,.05);border-radius:10px;padding:8px 10px;border:1px solid rgba(255,255,255,.07)}
+.ps-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.ps-id-badge{width:26px;height:20px;border-radius:6px;background:#4F46E5;
+  font-size:7px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.status-badge{font-size:6px;font-weight:700;padding:2px 6px;border-radius:8px}
+.status-av{background:rgba(34,197,94,.2);color:#4ade80}
+.status-li{background:rgba(245,158,11,.2);color:#fbbf24}
+.status-fu{background:rgba(239,68,68,.2);color:#f87171}
+.ps-loc{font-size:6px;color:rgba(255,255,255,.5);margin-bottom:4px}
+.progress-wrap{height:4px;background:rgba(255,255,255,.1);border-radius:2px;margin-bottom:3px}
+.progress-fill{height:100%;border-radius:2px;transition:width .6s}
+.ps-count{font-size:5.5px;color:rgba(255,255,255,.45)}
+
+/* ALERTS */
+.screen-alerts{background:#0d0818}
+.alerts-hdr{background:rgba(15,12,30,.95);padding:8px 12px;display:flex;
+  justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.08)}
+.alerts-title{font-size:10px;font-weight:700}
+.mark-btn{font-size:6.5px;color:var(--pl);font-weight:600}
+.tab-bar-ph{display:flex;padding:6px 10px 0;gap:0;position:relative}
+.tab-ph{flex:1;padding:5px 0;text-align:center;font-size:7px;font-weight:600;
+  color:rgba(255,255,255,.45);position:relative;z-index:1}
+.tab-ph.active{color:#fff}
+.tab-pill{position:absolute;bottom:0;height:100%;background:rgba(79,70,229,.25);
+  border-radius:8px;border:1px solid rgba(79,70,229,.4);transition:all .3s}
+.tab-ph .badge2{display:inline-flex;background:var(--r);color:#fff;
+  font-size:5px;padding:1px 4px;border-radius:8px;margin-left:2px;font-weight:700}
+.alert-list{flex:1;overflow:hidden;padding:6px;display:flex;flex-direction:column;gap:4px}
+.alert-card{background:rgba(255,255,255,.04);border-radius:9px;padding:7px 9px;
+  border:1px solid rgba(255,255,255,.07);display:flex;gap:6px;align-items:flex-start;position:relative}
+.alert-card.unread{border-left:2px solid var(--p)}
+.alert-icon-wrap{width:22px;height:22px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px}
+.alert-av-bg{background:rgba(34,197,94,.2)}
+.alert-wa-bg{background:rgba(245,158,11,.2)}
+.alert-sy-bg{background:rgba(79,70,229,.2)}
+.alert-text .title{font-size:7px;font-weight:600;margin-bottom:1px}
+.alert-text .body{font-size:6px;color:rgba(255,255,255,.5);line-height:1.4}
+.alert-text .time{font-size:5.5px;color:rgba(255,255,255,.35);margin-top:2px}
+.unread-dot{position:absolute;top:6px;right:7px;width:5px;height:5px;border-radius:50%;background:var(--pl)}
+
+/* HISTORY */
+.screen-history{background:#0d0818}
+.sess-card{background:rgba(255,255,255,.04);border-radius:9px;padding:8px 10px;
+  border:1px solid rgba(255,255,255,.07);margin:0 6px 4px}
+.sess-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.sess-id{width:26px;height:20px;border-radius:6px;background:#4F46E5;
+  font-size:7px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.sess-date{font-size:6px;color:rgba(255,255,255,.45)}
+.active-pill{background:rgba(34,197,94,.2);color:#4ade80;font-size:5.5px;font-weight:700;
+  padding:2px 6px;border-radius:8px;border:1px solid rgba(34,197,94,.3)}
+.sess-name{font-size:7px;font-weight:600;margin-bottom:2px}
+.sess-loc{font-size:6px;color:rgba(255,255,255,.4);margin-bottom:5px}
+.sess-divider{height:1px;background:rgba(255,255,255,.06);margin-bottom:5px}
+.sess-times{display:flex;gap:10px}
+.sess-time-block .label{font-size:5.5px;color:rgba(255,255,255,.4);margin-bottom:2px}
+.sess-time-block .val{font-size:7px;font-weight:600;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:3px}
+.dot-g{width:5px;height:5px;border-radius:50%;background:#22C55E}
+.dot-gray{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.3)}
+
+/* SETTINGS */
+.screen-settings{background:#0d0818}
+.sett-hdr{background:rgba(15,12,30,.95);padding:8px 12px;display:flex;align-items:center;
+  border-bottom:1px solid rgba(255,255,255,.08)}
+.sett-title{font-size:10px;font-weight:700}
+.avatar-wrap{display:flex;flex-direction:column;align-items:center;padding:12px 0 8px;gap:4px}
+.avatar{width:44px;height:44px;border-radius:22px;background:linear-gradient(135deg,#4F46E5,#7c3aed);
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;
+  border:2px solid rgba(79,70,229,.4)}
+.avatar-name{font-size:8.5px;font-weight:700}
+.avatar-chips{display:flex;gap:4px}
+.avatar-chip{font-size:6px;padding:2px 7px;border-radius:8px;font-weight:600;
+  background:rgba(79,70,229,.2);color:var(--pl);border:1px solid rgba(79,70,229,.3)}
+.sett-section{padding:4px 10px 2px}
+.sett-section-title{font-size:6.5px;text-transform:uppercase;letter-spacing:1px;
+  color:rgba(255,255,255,.4);font-weight:600;margin-bottom:4px}
+.sett-row{display:flex;justify-content:space-between;align-items:center;
+  padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.sett-row .label{font-size:7px;color:rgba(255,255,255,.8)}
+.toggle{width:26px;height:14px;border-radius:7px;background:#4F46E5;position:relative;flex-shrink:0}
+.toggle::after{content:'';position:absolute;top:2px;right:2px;width:10px;height:10px;
+  border-radius:5px;background:#fff}
+.toggle.off{background:rgba(255,255,255,.2)}
+.toggle.off::after{right:auto;left:2px}
+
+/* ── LAYOUT HELPERS ── */
+.flex{display:flex}.col{flex-direction:column}.gap-sm{gap:12px}.gap-md{gap:24px}.gap-lg{gap:40px}
+.center{align-items:center;justify-content:center}.between{justify-content:space-between}
+.w50{width:50%}.w40{width:40%}.w60{width:60%}
+h1.hero{font-size:clamp(36px,5vw,64px);font-weight:900;line-height:1.08;letter-spacing:-1.5px}
+h2.title{font-size:clamp(22px,3vw,36px);font-weight:800;letter-spacing:-.5px}
+h3.sub{font-size:clamp(14px,1.8vw,20px);font-weight:700;color:var(--pl)}
+p.body{font-size:clamp(12px,1.2vw,15px);color:var(--tm);line-height:1.7;font-family:var(--mono)}
+.gradient-text{color:#818cf8;-webkit-text-fill-color:#818cf8}
+.accent{color:var(--pl)}
+.rule{width:40px;height:3px;background:linear-gradient(90deg,var(--p),var(--pl));border-radius:2px;margin:10px 0}
+
+/* ── FEATURE GRID ── */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%}
+.feat-card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:14px;
+  display:flex;flex-direction:column;gap:6px;transition:all .2s}
+.feat-card:hover{background:rgba(79,70,229,.1);border-color:rgba(79,70,229,.3);transform:translateY(-2px)}
+.feat-icon{font-size:11px;font-weight:800;font-family:'Space Mono',monospace;color:#818cf8;
+  width:36px;height:36px;border-radius:10px;letter-spacing:-.5px;
+  background:rgba(79,70,229,.12);border:1px solid rgba(79,70,229,.2);display:flex;align-items:center;justify-content:center}
+.feat-name{font-size:12px;font-weight:700}
+.feat-note{font-size:10px;color:var(--tm);font-family:var(--mono)}
+
+/* ── TECH CARDS ── */
+.tech-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%}
+.tech-card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:14px 12px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;transition:all .2s}
+.tech-card:hover{background:rgba(79,70,229,.1);border-color:rgba(79,70,229,.4);transform:translateY(-3px)}
+.tech-icon{font-size:11px;font-weight:800;font-family:'Space Mono',monospace;color:#818cf8;
+  width:40px;height:40px;border-radius:10px;letter-spacing:-.5px;
+  background:rgba(79,70,229,.1);border:1px solid rgba(79,70,229,.18);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 4px}
+.tech-name{font-size:11px;font-weight:700}
+.tech-ver{font-size:9px;color:var(--cx);font-family:var(--mono)}
+
+/* ── BUG LIST ── */
+.bug-item{display:flex;gap:12px;align-items:flex-start;padding:12px;
+  background:var(--s);border:1px solid var(--b);border-radius:10px}
+.bug-num{width:24px;height:24px;border-radius:8px;background:rgba(239,68,68,.2);
+  border:1px solid rgba(239,68,68,.3);font-size:11px;font-weight:700;
+  color:#f87171;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ── TODO GRID ── */
+.todo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%}
+.todo-item{display:flex;gap:10px;align-items:flex-start;padding:12px;
+  background:var(--s);border:1px solid var(--b);border-radius:10px}
+.priority{font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;flex-shrink:0;margin-top:2px}
+.hi{background:rgba(239,68,68,.2);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.md{background:rgba(245,158,11,.2);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+.lo{background:rgba(100,116,139,.2);color:#94a3b8;border:1px solid rgba(100,116,139,.3)}
+
+/* ── FILE TREE ── */
+.tree{font-family:var(--mono);font-size:11px;line-height:2;
+  background:var(--s);border:1px solid var(--b);border-radius:12px;padding:16px 20px}
+.tree .dir{color:var(--pl);font-weight:600}
+.tree .file{color:rgba(255,255,255,.7)}
+.tree .gray{color:var(--ts)}
+.tree .highlight{color:#4ade80;font-weight:600}
+
+/* ── COLOR SWATCHES ── */
+.swatch-row{display:flex;gap:10px;flex-wrap:wrap}
+.swatch{width:60px;height:60px;border-radius:12px;display:flex;align-items:flex-end;
+  padding:6px;font-size:8px;font-weight:700;color:rgba(255,255,255,.9);
+  box-shadow:0 4px 16px rgba(0,0,0,.4)}
+
+/* ── SPLIT LAYOUT ── */
+.split{display:flex;align-items:center;gap:60px;width:100%;max-width:1100px}
+.split-left{flex:1}
+.split-right{flex-shrink:0}
+
+/* ── CALLOUT LINES ── */
+.callout{display:flex;align-items:center;gap:10px;margin:8px 0}
+.callout-dot{width:8px;height:8px;border-radius:50%;background:var(--pl);flex-shrink:0}
+.callout-text{font-size:11px;color:var(--tm);font-family:var(--mono);letter-spacing:-.1px}
+.callout-text b{color:var(--t)}
+
+/* ── SCREEN LABEL ── */
+.screen-num{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--cx);font-weight:400;margin-bottom:4px;font-family:var(--mono)}
+
+/* ── REFLECTION CARDS ── */
+.refl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;width:100%}
+.refl-card{padding:20px;border-radius:14px;display:flex;flex-direction:column;gap:8px}
+.refl-card.worked{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2)}
+.refl-card.different{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2)}
+.refl-card.challenge{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2)}
+.refl-card .icon{font-size:24px}
+.refl-card h4{font-size:13px;font-weight:700}
+.refl-card p{font-size:11px;color:var(--tm);line-height:1.6}
+
+/* ── STATUS RING ── */
+.status-ring{width:160px;height:160px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;flex-direction:column;gap:4px;flex-shrink:0;
+  background:conic-gradient(#4F46E5 0% var(--rp,0%),rgba(255,255,255,.1) var(--rp,0%) 100%);
+  position:relative;animation:float 4s ease-in-out infinite}
+.status-ring::before{content:'';position:absolute;inset:14px;border-radius:50%;background:#0f0c29}
+.ring-inner{position:relative;z-index:1;text-align:center}
+.ring-pct{font-size:32px;font-weight:900;color:var(--pl)}
+.ring-label{font-size:9px;color:var(--cx);letter-spacing:1px;text-transform:uppercase;font-family:var(--mono)}
+
+/* ── TIPS ── */
+.tip-item{display:flex;gap:12px;align-items:flex-start}
+.tip-num{width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--p),var(--pl));
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0}
+.tip-text h4{font-size:13px;font-weight:700;margin-bottom:2px}
+.tip-text p{font-size:11px;color:var(--tm)}
+
+/* ── STAR DIVIDER ── */
+.divider{width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--b),transparent);margin:12px 0}
+
+/* MAX WIDTH */
+.max-w{max-width:1100px;width:100%}
+
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="grid"></div>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+
+<div id="pres">
+
+<!-- ══════════════════════ SLIDE 1: COVER ══════════════════════ -->
+<div class="slide active" id="s1">
+  <div style="text-align:center;max-width:900px;width:100%">
+    <p style="font-family:'Space Mono',monospace;font-size:14px;font-weight:700;
+      letter-spacing:.22em;text-transform:uppercase;color:#4F46E5;
+      opacity:0;animation:fadeIn .4s ease .05s forwards;margin-bottom:14px">
+      Introducing
+    </p>
+    <div class="flex center" style="align-items:center;gap:18px;margin-bottom:10px">
+      <!-- App Icon -->
+      <img src="slides-assets/icon.jpg" alt="CampusPark icon"
+        class="a1"
+        style="width:64px;height:64px;border-radius:16px;flex-shrink:0;
+        box-shadow:0 0 0 1px rgba(255,255,255,.08),0 20px 50px rgba(0,0,0,.5)">
+      <!-- App Name:wipe reveal -->
+      <div style="position:relative;overflow:hidden;padding:6px 2px;display:inline-block">
+        <h1 class="hero" style="font-family:'Syne',sans-serif;letter-spacing:-2px;line-height:1;
+          opacity:0;animation:heroAppear .01s 1.05s forwards">
+          <span style="color:#f1f0ff">Campus</span><span style="color:#818cf8">Park</span>
+        </h1>
+        <div style="position:absolute;inset:0;background:#6366f1;
+          animation:heroWipe 1s cubic-bezier(.77,0,.175,1) .28s both;
+          pointer-events:none"></div>
+      </div>
+    </div>
+    <p style="font-size:16px;color:var(--tm);margin:14px 0 6px;font-weight:400;font-family:'Space Mono',monospace;letter-spacing:-.2px" class="a2">
+      Find your spot. Park smart.
+    </p>
+    <div class="flex center gap-sm a3" style="margin:20px 0 16px;flex-wrap:wrap">
+      <span class="chip chip-p">CS 250</span>
+      <span class="chip chip-g">Midterm Handoff</span>
+      <span class="chip chip-pu">San Diego State University</span>
+      <span class="chip" style="background:rgba(255,255,255,.06);color:var(--tm);border:1px solid var(--b)">March 2026</span>
+    </div>
+    <div class="flex center gap-sm a4" style="margin-bottom:28px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
+        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4F46E5,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">AM</div>
+        <span style="font-size:12px;font-weight:600;color:#fff">Amarendra Mishra</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
+        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#4338ca);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">CG</div>
+        <span style="font-size:12px;font-weight:600;color:#fff">Carlos Gans</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
+        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">CM</div>
+        <span style="font-size:12px;font-weight:600;color:#fff">Charlie McMahon</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)">
+        <div style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#4338ca,#3730a3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700">MB</div>
+        <span style="font-size:12px;font-weight:600;color:#fff">Miguel Balderas</span>
+      </div>
+    </div>
+
+    <!-- Tech Stack -->
+    <div class="a5" style="width:100%;max-width:860px;margin:0 auto">
+      <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:#3a3f4a;text-transform:uppercase;margin-bottom:18px">Built With</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+
+        <!-- React Native -->
+        <div class="cv-tech" style="animation-delay:.10s"
+          onmouseover="this.style.borderColor='rgba(97,218,251,.25)'"
+          onmouseout="this.style.borderColor='rgba(255,255,255,.07)'">
+          <div class="cv-icon">
+            <svg width="36" height="36" viewBox="-11.5 -10.23 23 20.46">
+              <circle r="2.1" fill="#61DAFB"/>
+              <g fill="none" stroke="#61DAFB" stroke-width="1.4">
+                <ellipse rx="11" ry="4.2"/>
+                <ellipse rx="11" ry="4.2" transform="rotate(60)"/>
+                <ellipse rx="11" ry="4.2" transform="rotate(120)"/>
+              </g>
+            </svg>
+          </div>
+          <div class="cv-name">React Native</div>
+          <div class="cv-ver">0.81.5</div>
+        </div>
+
+        <!-- Expo SDK -->
+        <div class="cv-tech" style="animation-delay:.18s"
+          onmouseover="this.style.borderColor='rgba(255,255,255,.22)'"
+          onmouseout="this.style.borderColor='rgba(255,255,255,.07)'">
+          <div class="cv-icon">
+            <svg width="36" height="36" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="16" fill="#fff" opacity=".06" stroke="#fff" stroke-width="1" stroke-opacity=".18"/>
+              <text x="18" y="23.5" text-anchor="middle" fill="#fff" font-weight="800" font-size="14" font-family="Geist,system-ui,sans-serif" letter-spacing="-0.5">expo</text>
+            </svg>
+          </div>
+          <div class="cv-name">Expo SDK</div>
+          <div class="cv-ver">v54</div>
+        </div>
+
+        <!-- TypeScript -->
+        <div class="cv-tech" style="animation-delay:.26s"
+          onmouseover="this.style.borderColor='rgba(49,120,198,.4)'"
+          onmouseout="this.style.borderColor='rgba(255,255,255,.07)'">
+          <div class="cv-icon">
+            <svg width="36" height="36" viewBox="0 0 36 36">
+              <rect width="36" height="36" rx="6" fill="#3178C6"/>
+              <text x="18" y="24" text-anchor="middle" fill="white" font-weight="800" font-size="14" font-family="Geist,system-ui,sans-serif" letter-spacing="-0.5">TS</text>
+            </svg>
+          </div>
+          <div class="cv-name">TypeScript</div>
+          <div class="cv-ver">5.9.2</div>
+        </div>
+
+        <!-- React -->
+        <div class="cv-tech" style="animation-delay:.34s"
+          onmouseover="this.style.borderColor='rgba(97,218,251,.2)'"
+          onmouseout="this.style.borderColor='rgba(255,255,255,.07)'">
+          <div class="cv-icon">
+            <svg width="36" height="36" viewBox="-11.5 -10.23 23 20.46">
+              <circle r="2.1" fill="#61DAFB" opacity=".7"/>
+              <g fill="none" stroke="#61DAFB" stroke-width="1.4" opacity=".7">
+                <ellipse rx="11" ry="4.2"/>
+                <ellipse rx="11" ry="4.2" transform="rotate(60)"/>
+                <ellipse rx="11" ry="4.2" transform="rotate(120)"/>
+              </g>
+            </svg>
+          </div>
+          <div class="cv-name">React</div>
+          <div class="cv-ver">19.1.0</div>
+        </div>
+
+        <!-- Expo Router -->
+        <div class="cv-tech" style="animation-delay:.42s"
+          onmouseover="this.style.borderColor='rgba(129,140,248,.3)'"
+          onmouseout="this.style.borderColor='rgba(255,255,255,.07)'">
+          <div class="cv-icon">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+              <rect x="6" y="8" width="14" height="20" rx="3" stroke="#818cf8" stroke-width="1.6"/>
+              <path d="M20 12h4a2 2 0 012 2v10a2 2 0 01-2 2h-4" stroke="#818cf8" stroke-width="1.6"/>
+              <path d="M14 18h8M19 15l3 3-3 3" stroke="#818cf8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="cv-name">Expo Router</div>
+          <div class="cv-ver">v6.0.23</div>
+        </div>
+
+        <!-- Reanimated -->
+        <div class="cv-tech" style="animation-delay:.50s"
+          onmouseover="this.style.borderColor='rgba(167,139,250,.3)'"
+          onmouseout="this.style.borderColor='rgba(255,255,255,.07)'">
+          <div class="cv-icon">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+              <path d="M4 18c2-5 4-5 6 0s4 5 6 0 4-5 6 0 4 5 6 0" stroke="#a78bfa" stroke-width="2" stroke-linecap="round"/>
+              <circle cx="18" cy="28" r="2.5" fill="#a78bfa" opacity=".5"/>
+              <circle cx="18" cy="28" r="5" stroke="#a78bfa" stroke-width="1.2" opacity=".3"/>
+            </svg>
+          </div>
+          <div class="cv-name">Reanimated</div>
+          <div class="cv-ver">4.1.1</div>
+        </div>
+
+        <!-- Gesture Handler -->
+        <div class="cv-tech" style="animation-delay:.58s"
+          onmouseover="this.style.borderColor='rgba(96,165,250,.3)'"
+          onmouseout="this.style.borderColor='rgba(255,255,255,.07)'">
+          <div class="cv-icon">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#60a5fa" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 20V11a2 2 0 014 0v6"/>
+              <path d="M18 17a2 2 0 014 0v1"/>
+              <path d="M22 18a2 2 0 014 0v4c0 3.86-3.13 7-7 7h-3a7 7 0 01-5.94-3.28L7 22"/>
+              <path d="M7 22a2 2 0 012-2h3v-2"/>
+            </svg>
+          </div>
+          <div class="cv-name">Gesture Handler</div>
+          <div class="cv-ver">2.28.0</div>
+        </div>
+
+        <!-- Poppins -->
+        <div class="cv-tech" style="animation-delay:.66s"
+          onmouseover="this.style.borderColor='rgba(251,191,36,.25)'"
+          onmouseout="this.style.borderColor='rgba(255,255,255,.07)'">
+          <div class="cv-icon">
+            <svg width="36" height="36" viewBox="0 0 36 36">
+              <text x="5" y="27" fill="#fbbf24" font-weight="800" font-size="22" font-family="Georgia,serif">A</text>
+              <text x="22" y="27" fill="#fbbf24" font-weight="400" font-size="16" font-family="Georgia,serif" opacity=".7">a</text>
+            </svg>
+          </div>
+          <div class="cv-name">Poppins</div>
+          <div class="cv-ver">Google Fonts</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 2: OVERVIEW ══════════════════════ -->
+<div class="slide" id="s2">
+  <div class="split max-w">
+    <div class="split-left">
+      <div class="screen-num a1">Project Overview</div>
+      <h2 class="title a2">What is<br><span class="gradient-text">CampusPark?</span></h2>
+      <div class="rule a3"></div>
+      <p class="body a3" style="margin-bottom:20px">A cross-platform mobile app giving SDSU students real-time visibility into campus parking. Check occupancy, set smart alerts, and track sessions across all 8 structures before you even leave your dorm.</p>
+      <div class="flex col gap-sm">
+        <div class="callout a4"><div class="callout-dot"></div><div class="callout-text">Live occupancy across 8 parking structures with zone-level status tracking</div></div>
+        <div class="callout a4"><div class="callout-dot" style="background:#22C55E"></div><div class="callout-text">Smart alerts for availability changes, high traffic, game days, and weekly digests</div></div>
+        <div class="callout a5"><div class="callout-dot" style="background:#a78bfa"></div><div class="callout-text">Session logging to record arrival, departure, and parking duration per visit</div></div>
+      </div>
+    </div>
+    <div class="split-right fromR" style="display:flex;flex-direction:column;align-items:center;gap:20px">
+      <!-- Status Ring -->
+      <div class="status-ring">
+        <div class="ring-inner">
+          <div class="ring-pct" id="s2-ring">0%</div>
+          <div class="ring-label">Complete</div>
+        </div>
+      </div>
+      <div style="text-align:center">
+        <div class="flex gap-sm" style="justify-content:center;flex-wrap:wrap">
+          <div class="card" style="padding:10px 16px;text-align:center">
+            <div id="s2-screens" style="font-size:20px;font-weight:800;color:var(--pl)">0</div>
+            <div style="font-size:9px;color:var(--ts);letter-spacing:.5px">SCREENS</div>
+          </div>
+          <div class="card" style="padding:10px 16px;text-align:center">
+            <div id="s2-features" style="font-size:20px;font-weight:800;color:#4ade80">0</div>
+            <div style="font-size:9px;color:var(--ts);letter-spacing:.5px">FEATURES DONE</div>
+          </div>
+          <div class="card" style="padding:10px 16px;text-align:center">
+            <div id="s2-todos" style="font-size:20px;font-weight:800;color:#fbbf24">0</div>
+            <div style="font-size:9px;color:var(--ts);letter-spacing:.5px">TO-DO</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 3: TEAM CONTRIBUTIONS ══════════════════════ -->
+<div class="slide" id="s-team">
+  <div style="max-width:900px;width:100%;text-align:center">
+    <div class="screen-num a1" style="text-align:center">Team Contributions</div>
+    <h2 class="title a2" style="text-align:center;margin-bottom:6px">Who Built <span class="gradient-text">What</span></h2>
+    <div class="rule a2" style="margin:0 auto 22px"></div>
+    <div class="a3" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+      <!-- Amarendra Mishra -->
+      <div class="card" style="padding:20px;text-align:left">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#4F46E5,#818cf8);
+            display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0">AM</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#fff">Amarendra Mishra</div>
+            <div style="font-size:9px;color:#818cf8;font-family:'Space Mono',monospace;letter-spacing:.06em;text-transform:uppercase">React Native App</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="font-size:11px;color:var(--tm)"><span style="color:#818cf8;font-family:'Space Mono',monospace">index.tsx</span>: welcome screen, campus dropdown, community picker, login flow</div>
+          <div style="font-size:11px;color:var(--tm)"><span style="color:#818cf8;font-family:'Space Mono',monospace">home.tsx</span>: 8 parking structures with live status badges, occupancy bars, report modal</div>
+          <div style="font-size:11px;color:var(--tm)"><span style="color:#818cf8;font-family:'Space Mono',monospace">alerts.tsx</span>: parking alerts and announcements with unread badge system</div>
+          <div style="font-size:11px;color:var(--tm)"><span style="color:#818cf8;font-family:'Space Mono',monospace">history.tsx</span>: session log with arrival, departure, and duration tracking</div>
+          <div style="font-size:11px;color:var(--tm)"><span style="color:#818cf8;font-family:'Space Mono',monospace">settings.tsx</span>: user profile, 5 alert toggles, editable preferences</div>
+          <div style="font-size:11px;color:var(--tm)"><span style="color:#818cf8;font-family:'Space Mono',monospace">legal.tsx</span>: Privacy Policy, Terms of Service, Open Source Licenses</div>
+        </div>
+      </div>
+
+      <!-- Carlos Gans -->
+      <div class="card" style="padding:20px;text-align:left">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#059669,#4ade80);
+            display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0">CG</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#fff">Carlos Gans</div>
+            <div style="font-size:9px;color:#4ade80;font-family:'Space Mono',monospace;letter-spacing:.06em;text-transform:uppercase">Python REST API</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <div style="font-size:11px;color:var(--tm)"><span style="color:#818cf8;font-family:'Space Mono',monospace">parkinglot.py</span>:data models, real-time availability, zone management</div>
+          <div style="font-size:11px;color:var(--tm)"><span style="color:#818cf8;font-family:'Space Mono',monospace">report.py</span>:report generation, aggregation, data structures</div>
+          <div style="font-size:11px;color:var(--tm)"><span style="color:#818cf8;font-family:'Space Mono',monospace">api.py</span>:Flask entry point with RESTful endpoints for parking and mobile</div>
+          <div style="font-size:11px;color:var(--tm)">JSON + Flask backend with full parking data and status tracking</div>
+        </div>
+      </div>
+
+      <!-- Charlie McMahon -->
+      <div class="card" style="padding:20px;text-align:left">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#b45309,#fbbf24);
+            display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0">CM</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#fff">Charlie McMahon</div>
+            <div style="font-size:9px;color:#fbbf24;font-family:'Space Mono',monospace;letter-spacing:.06em;text-transform:uppercase">Contributions TBD</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--ts);font-style:italic">Details to be added</div>
+      </div>
+
+      <!-- Miguel Balderas -->
+      <div class="card" style="padding:20px;text-align:left">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+          <div style="width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#c084fc);
+            display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0">MB</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#fff">Miguel Balderas</div>
+            <div style="font-size:9px;color:#c084fc;font-family:'Space Mono',monospace;letter-spacing:.06em;text-transform:uppercase">Contributions TBD</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--ts);font-style:italic">Details to be added</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 4: LOGIN SCREEN ══════════════════════ -->
+<div class="slide" id="s3">
+  <div class="split max-w">
+    <div class="split-left">
+      <div class="screen-num a1">Screen 1 of 6</div>
+      <h2 class="title a2">Welcome &<br><span class="gradient-text">Login Screen</span></h2>
+      <div class="rule a2"></div>
+      <div class="flex col gap-sm" style="margin-top:16px">
+        <div class="callout a3"><div class="callout-dot"></div><div class="callout-text"><b>Animated background</b> with indigo + purple radial gradients</div></div>
+        <div class="callout a3"><div class="callout-dot"></div><div class="callout-text"><b>Campus dropdown</b> pre-loaded with SDSU:cannot be changed</div></div>
+        <div class="callout a4"><div class="callout-dot"></div><div class="callout-text"><b>Community picker</b>:11 SDSU residential communities via animated bottom sheet</div></div>
+        <div class="callout a4"><div class="callout-dot"></div><div class="callout-text"><b>Spring animations</b>:sheet slides up with tension:68, friction:10</div></div>
+        <div class="callout a5"><div class="callout-dot"></div><div class="callout-text"><b>Smart button</b>:"Get Started" only enables when both fields selected</div></div>
+        <div class="callout a5"><div class="callout-dot"></div><div class="callout-text"><b>Glass morphism</b> dropdowns:rgba(255,255,255,0.32) with 1.5px borders</div></div>
+      </div>
+      <div class="flex gap-sm a6" style="margin-top:20px;flex-wrap:wrap">
+        <span class="chip chip-g">Complete</span>
+        <span class="chip chip-p">Expo Router</span>
+        <span class="chip chip-pu">Reanimated</span>
+      </div>
+    </div>
+    <div class="split-right fromR" style="display:flex;align-items:center;justify-content:center">
+      <div class="phone scaleIn" style="width:260px;height:544px;border-radius:54px;border-width:9px">
+        <div class="phone-screen screen-login">
+          <img src="slides-assets/Simulator Screenshot - iPhone 16e - 2026-03-24 at 16.29.22.png" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 4: HOME SCREEN ══════════════════════ -->
+<div class="slide" id="s4">
+  <div class="split max-w" style="flex-direction:row-reverse">
+    <div class="split-left">
+      <div class="screen-num a1">Screen 2 of 6</div>
+      <h2 class="title a2">Parking<br><span class="gradient-text">Structures Map</span></h2>
+      <div class="rule a2"></div>
+      <div class="flex col gap-sm" style="margin-top:16px">
+        <div class="callout a3"><div class="callout-dot" style="background:#4ade80"></div><div class="callout-text"><b>8 parking structures</b>:PS1 through PS8 with real locations</div></div>
+        <div class="callout a3"><div class="callout-dot" style="background:#4ade80"></div><div class="callout-text"><b>Live status badges</b>:Available (green) / Limited (amber) / Full (red)</div></div>
+        <div class="callout a4"><div class="callout-dot" style="background:#4ade80"></div><div class="callout-text"><b>Progress bars</b>:visual occupancy for each structure</div></div>
+        <div class="callout a4"><div class="callout-dot" style="background:#4ade80"></div><div class="callout-text"><b>Report modal</b>:tap any card to report: I Arrived / I Left / Flag issue</div></div>
+        <div class="callout a5"><div class="callout-dot" style="background:#4ade80"></div><div class="callout-text"><b>Quick nav icons</b>:Alerts (with unread badge), History, Settings</div></div>
+      </div>
+      <div class="flex gap-sm a6" style="margin-top:20px;flex-wrap:wrap">
+        <span class="chip chip-g">Complete</span>
+        <span class="chip chip-a">Mock Data</span>
+        <span class="chip chip-r">Backend Needed</span>
+      </div>
+    </div>
+    <div class="split-right fromL" style="display:flex;align-items:center;justify-content:center">
+      <div class="phone scaleIn" style="width:260px;height:544px;border-radius:54px;border-width:9px">
+        <div class="phone-screen screen-home">
+          <img src="slides-assets/Simulator Screenshot - iPhone 16e - 2026-03-24 at 16.29.25.png" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 5: ALERTS + HISTORY ══════════════════════ -->
+<div class="slide" id="s5">
+  <div style="max-width:1100px;width:100%;text-align:center">
+    <div class="screen-num a1">Screens 3 & 4 of 6</div>
+    <h2 class="title a2" style="margin-bottom:6px">Alerts & <span class="gradient-text">History</span></h2>
+    <p class="body a3" style="margin-bottom:28px;font-size:13px">Animated tab bars with spring physics • Unread badge tracking • Session history</p>
+    <div class="flex center gap-lg a4">
+
+      <!-- Alerts Phone -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+        <div class="phone" style="width:230px;height:482px;border-radius:48px;border-width:8px">
+          <div class="phone-screen screen-alerts">
+            <img src="slides-assets/Simulator Screenshot - iPhone 16e - 2026-03-24 at 16.29.28.png" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block">
+          </div>
+        </div>
+        <div class="chip chip-g">Alerts Screen</div>
+      </div>
+
+      <!-- History Phone -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+        <div class="phone" style="width:230px;height:482px;border-radius:48px;border-width:8px;animation-delay:.9s">
+          <div class="phone-screen screen-history">
+            <img src="slides-assets/Simulator Screenshot - iPhone 16e - 2026-03-24 at 16.29.32.png" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block">
+          </div>
+        </div>
+        <div class="chip chip-g">History Screen</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 6: SETTINGS ══════════════════════ -->
+<div class="slide" id="s6">
+  <div class="split max-w">
+    <div class="split-left">
+      <div class="screen-num a1">Screen 5–6 of 6</div>
+      <h2 class="title a2">Settings &<br><span class="gradient-text">Legal</span></h2>
+      <div class="rule a2"></div>
+      <div class="flex col gap-sm" style="margin-top:16px">
+        <div class="callout a3"><div class="callout-dot" style="background:#a78bfa"></div><div class="callout-text"><b>Profile hero</b>:avatar with initials, name, campus + community badges</div></div>
+        <div class="callout a3"><div class="callout-dot" style="background:#a78bfa"></div><div class="callout-text"><b>Editable profile</b>:Full Name, Email, Campus, Community</div></div>
+        <div class="callout a4"><div class="callout-dot" style="background:#a78bfa"></div><div class="callout-text"><b>5 alert toggles</b>:Availability, High Traffic, Announcements, Game Day, Weekly Summary</div></div>
+        <div class="callout a4"><div class="callout-dot" style="background:#a78bfa"></div><div class="callout-text"><b>Legal documents</b>:Privacy Policy, Terms of Service, Open Source Licenses (effective Mar 6, 2026)</div></div>
+        <div class="callout a5"><div class="callout-dot" style="background:#a78bfa"></div><div class="callout-text"><b>Sign Out</b>:red destructive action button at bottom</div></div>
+      </div>
+      <div class="flex gap-sm a6" style="margin-top:20px;flex-wrap:wrap">
+        <span class="chip chip-g">Complete</span>
+        <span class="chip chip-pu">Settings</span>
+        <span class="chip chip-pu">Legal</span>
+      </div>
+    </div>
+    <div class="split-right fromR" style="display:flex;align-items:center;justify-content:center">
+      <div class="phone scaleIn" style="width:260px;height:544px;border-radius:54px;border-width:9px">
+        <div class="phone-screen screen-settings">
+          <img src="slides-assets/Simulator Screenshot - iPhone 16e - 2026-03-24 at 16.29.36.png" style="width:100%;height:100%;object-fit:cover;object-position:top;display:block">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 7: FEATURES DONE ══════════════════════ -->
+<div class="slide" id="s7">
+  <div style="max-width:1100px;width:100%">
+    <div class="flex between" style="align-items:flex-end;margin-bottom:24px">
+      <div>
+        <div class="screen-num a1">Section 2</div>
+        <h2 class="title a2">Features <span class="gradient-text">Completed</span></h2>
+      </div>
+      <span class="chip chip-g a2" style="font-size:13px;padding:6px 16px">10 / 10 Done</span>
+    </div>
+    <div class="feat-grid a3">
+      <div class="feat-card"><div class="feat-icon">LN</div><div class="feat-name">Welcome / Login Screen</div><div class="feat-note">Animated dropdowns, glass UI, smart enable</div><span class="chip chip-g" style="font-size:9px;margin-top:4px">Complete</span></div>
+      <div class="feat-card" style="animation-delay:.05s"><div class="feat-icon">PS</div><div class="feat-name">Parking Structures (PS1–PS8)</div><div class="feat-note">Status, progress bars, location info</div><span class="chip chip-g" style="font-size:9px;margin-top:4px">Complete</span></div>
+      <div class="feat-card" style="animation-delay:.1s"><div class="feat-icon">ST</div><div class="feat-name">Live Status Badges</div><div class="feat-note">Available / Limited / Full with color coding</div><span class="chip chip-g" style="font-size:9px;margin-top:4px">Complete</span></div>
+      <div class="feat-card" style="animation-delay:.15s"><div class="feat-icon">RP</div><div class="feat-name">Report Modal</div><div class="feat-note">I Arrived / I Left / Flag inaccuracy</div><span class="chip chip-g" style="font-size:9px;margin-top:4px">Complete</span></div>
+      <div class="feat-card" style="animation-delay:.2s"><div class="feat-icon">AL</div><div class="feat-name">Alerts Screen (Tabbed)</div><div class="feat-note">Parking + Announcements with unread counts</div><span class="chip chip-g" style="font-size:9px;margin-top:4px">Complete</span></div>
+      <div class="feat-card" style="animation-delay:.25s"><div class="feat-icon">HX</div><div class="feat-name">History Screen</div><div class="feat-note">Parking sessions + submitted reports tracking</div><span class="chip chip-g" style="font-size:9px;margin-top:4px">Complete</span></div>
+      <div class="feat-card" style="animation-delay:.3s"><div class="feat-icon">SG</div><div class="feat-name">Settings Screen</div><div class="feat-note">Profile, notification toggles, preferences</div><span class="chip chip-g" style="font-size:9px;margin-top:4px">Complete</span></div>
+      <div class="feat-card" style="animation-delay:.35s"><div class="feat-icon">LG</div><div class="feat-name">Legal Documents</div><div class="feat-note">Privacy Policy, ToS, OSS Licenses</div><span class="chip chip-g" style="font-size:9px;margin-top:4px">Complete</span></div>
+      <div class="feat-card" style="animation-delay:.4s"><div class="feat-icon">UI</div><div class="feat-name">Glass Morphism UI</div><div class="feat-note">Animated bottom sheets, spring physics throughout</div><span class="chip chip-g" style="font-size:9px;margin-top:4px">Complete</span></div>
+      <div class="feat-card" style="animation-delay:.45s"><div class="feat-icon">TB</div><div class="feat-name">Animated Tab Bars</div><div class="feat-note">Spring pill animation (tension:68 friction:10)</div><span class="chip chip-g" style="font-size:9px;margin-top:4px">Complete</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 8: FEATURES TO-DO ══════════════════════ -->
+<div class="slide" id="s8">
+  <div style="max-width:1100px;width:100%">
+    <div class="flex between" style="align-items:flex-end;margin-bottom:24px">
+      <div>
+        <div class="screen-num a1">Section 3</div>
+        <h2 class="title a2">Features <span class="gradient-text">To-Do</span></h2>
+      </div>
+      <div class="flex gap-sm a2">
+        <span class="chip chip-r">4 High Priority</span>
+        <span class="chip chip-a">3 Medium</span>
+        <span class="chip" style="background:rgba(100,116,139,.15);color:#94a3b8;border:1px solid rgba(100,116,139,.3)">2 Low</span>
+      </div>
+    </div>
+    <div class="todo-grid a3">
+      <div class="todo-item"><span class="priority hi">HIGH</span><div><div style="font-size:13px;font-weight:700;margin-bottom:2px">Backend API Integration</div><div style="font-size:11px;color:var(--ts)">Replace all mock data with live REST/GraphQL endpoints from SDSU parking sensors</div></div></div>
+      <div class="todo-item"><span class="priority hi">HIGH</span><div><div style="font-size:13px;font-weight:700;margin-bottom:2px">Real Authentication</div><div style="font-size:11px;color:var(--ts)">Implement SSO with SDSU credentials:current login is UI-only with no auth logic</div></div></div>
+      <div class="todo-item"><span class="priority hi">HIGH</span><div><div style="font-size:13px;font-weight:700;margin-bottom:2px">Push Notifications</div><div style="font-size:11px;color:var(--ts)">Wire up Expo Notifications with real alert triggers from backend events</div></div></div>
+      <div class="todo-item"><span class="priority hi">HIGH</span><div><div style="font-size:13px;font-weight:700;margin-bottom:2px">Data Persistence</div><div style="font-size:11px;color:var(--ts)">Settings, profile, and session data reset on app close:add AsyncStorage or Zustand</div></div></div>
+      <div class="todo-item"><span class="priority md">MED</span><div><div style="font-size:13px;font-weight:700;margin-bottom:2px">Map Integration</div><div style="font-size:11px;color:var(--ts)">Add MapView with pins for each parking structure using react-native-maps</div></div></div>
+      <div class="todo-item"><span class="priority md">MED</span><div><div style="font-size:13px;font-weight:700;margin-bottom:2px">Parking Reservation</div><div style="font-size:11px;color:var(--ts)">Allow students to reserve a spot in advance with time window and confirmation</div></div></div>
+      <div class="todo-item"><span class="priority md">MED</span><div><div style="font-size:13px;font-weight:700;margin-bottom:2px">Campus ID Integration</div><div style="font-size:11px;color:var(--ts)">Validate parking permit status using SDSU Campus ID / student portal API</div></div></div>
+      <div class="todo-item"><span class="priority lo">LOW</span><div><div style="font-size:13px;font-weight:700;margin-bottom:2px">Analytics Dashboard</div><div style="font-size:11px;color:var(--ts)">Historical parking trends, peak hours heatmap, weekly usage summary charts</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 9: TECH STACK ══════════════════════ -->
+<div class="slide" id="s9">
+  <div style="max-width:1000px;width:100%">
+    <div style="text-align:center;margin-bottom:28px">
+      <div class="screen-num a1">Section 4</div>
+      <h2 class="title a2">Tech <span class="gradient-text">Stack</span></h2>
+      <p class="body a3" style="font-size:13px;margin-top:6px">Modern cross-platform mobile stack:iOS & Android from one codebase</p>
+    </div>
+    <div class="tech-grid a3">
+      <div class="tech-card"><div class="tech-icon">EX</div><div class="tech-name">Expo SDK</div><div class="tech-ver">v54</div><div style="font-size:9px;color:var(--ts);margin-top:2px">Build & dev tooling</div></div>
+      <div class="tech-card" style="animation-delay:.05s"><div class="tech-icon">RN</div><div class="tech-name">React Native</div><div class="tech-ver">0.81.5</div><div style="font-size:9px;color:var(--ts);margin-top:2px">Cross-platform UI</div></div>
+      <div class="tech-card" style="animation-delay:.1s"><div class="tech-icon">RC</div><div class="tech-name">React</div><div class="tech-ver">19.1.0</div><div style="font-size:9px;color:var(--ts);margin-top:2px">UI library</div></div>
+      <div class="tech-card" style="animation-delay:.15s"><div class="tech-icon">TS</div><div class="tech-name">TypeScript</div><div class="tech-ver">5.9.2</div><div style="font-size:9px;color:var(--ts);margin-top:2px">Type safety</div></div>
+      <div class="tech-card" style="animation-delay:.2s"><div class="tech-icon">ER</div><div class="tech-name">Expo Router</div><div class="tech-ver">v6.0.23</div><div style="font-size:9px;color:var(--ts);margin-top:2px">File-based routing</div></div>
+      <div class="tech-card" style="animation-delay:.25s"><div class="tech-icon">RA</div><div class="tech-name">Reanimated</div><div class="tech-ver">4.1.1</div><div style="font-size:9px;color:var(--ts);margin-top:2px">Native animations</div></div>
+      <div class="tech-card" style="animation-delay:.3s"><div class="tech-icon">GH</div><div class="tech-name">Gesture Handler</div><div class="tech-ver">2.28.0</div><div style="font-size:9px;color:var(--ts);margin-top:2px">Touch interactions</div></div>
+      <div class="tech-card" style="animation-delay:.35s"><div class="tech-icon">PP</div><div class="tech-name">Poppins</div><div class="tech-ver">Google Fonts</div><div style="font-size:9px;color:var(--ts);margin-top:2px">Typography</div></div>
+    </div>
+    <div class="a4" style="margin-top:20px;text-align:center">
+      <div class="tree" style="display:inline-block;text-align:left;font-size:10px">
+        <span class="gray">$ </span><span style="color:#4ade80">git clone</span> https://github.com/amarendra-008/CampusParkingTracker
+        <br><span class="gray">$ </span>cd CampusParkingTracker/campusparkingtracker
+        <br><span class="gray">$ </span>npm install
+        <br><span class="gray">$ </span><span style="color:var(--pl)">npm start</span>  <span class="gray"># → scan QR with Expo Go</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 10: ARCHITECTURE ══════════════════════ -->
+<div class="slide" id="s10">
+  <div class="split max-w" style="gap:40px">
+    <div class="split-left">
+      <div class="screen-num a1">Section 4 (cont.)</div>
+      <h2 class="title a2">App <span class="gradient-text">Architecture</span></h2>
+      <div class="rule a2"></div>
+      <p class="body a3" style="font-size:12px;margin-bottom:16px">File-based routing via Expo Router:every <code style="color:var(--pl);background:rgba(79,70,229,.15);padding:2px 6px;border-radius:4px">app/*.tsx</code> file is a screen.</p>
+      <div class="tree a3" style="font-size:10.5px;line-height:1.9">
+        <span class="dir">campusparkingtracker/</span><br>
+        ├── <span class="dir">app/</span><br>
+        │&nbsp;&nbsp; ├── <span class="highlight">_layout.tsx</span>  <span class="gray"># Stack navigator (no headers)</span><br>
+        │&nbsp;&nbsp; ├── <span class="highlight">index.tsx</span>   <span class="gray"># Welcome / Login</span><br>
+        │&nbsp;&nbsp; ├── <span class="highlight">home.tsx</span>    <span class="gray"># Parking structures list</span><br>
+        │&nbsp;&nbsp; ├── <span class="highlight">alerts.tsx</span>  <span class="gray"># Parking + announcement alerts</span><br>
+        │&nbsp;&nbsp; ├── <span class="highlight">history.tsx</span> <span class="gray"># Sessions + reports history</span><br>
+        │&nbsp;&nbsp; ├── <span class="highlight">settings.tsx</span><span class="gray"># User profile + prefs</span><br>
+        │&nbsp;&nbsp; └── <span class="highlight">legal.tsx</span>   <span class="gray"># Privacy, ToS, Licenses</span><br>
+        └── <span class="dir">assets/images/</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp; └── <span class="file">background.png</span>
+      </div>
+    </div>
+    <div style="flex-shrink:0;display:flex;flex-direction:column;gap:10px" class="fromR">
+      <h3 class="sub" style="font-size:14px;margin-bottom:4px">Navigation Flow</h3>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="padding:8px 16px;border-radius:10px;background:rgba(79,70,229,.2);border:1px solid rgba(79,70,229,.4);font-size:11px;font-weight:700">index.tsx</div>
+          <div style="font-size:18px;color:var(--pl)">→</div>
+          <div style="padding:8px 16px;border-radius:10px;background:rgba(79,70,229,.2);border:1px solid rgba(79,70,229,.4);font-size:11px;font-weight:700">home.tsx</div>
+        </div>
+        <div style="padding-left:20px;display:flex;flex-direction:column;gap:6px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-size:12px;color:var(--ts)">↳</div>
+            <div style="padding:6px 14px;border-radius:8px;background:var(--s);border:1px solid var(--b);font-size:11px">alerts.tsx</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-size:12px;color:var(--ts)">↳</div>
+            <div style="padding:6px 14px;border-radius:8px;background:var(--s);border:1px solid var(--b);font-size:11px">history.tsx</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-size:12px;color:var(--ts)">↳</div>
+            <div style="padding:6px 14px;border-radius:8px;background:var(--s);border:1px solid var(--b);font-size:11px">settings.tsx</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-size:12px;color:var(--ts)">↳</div>
+            <div style="padding:6px 14px;border-radius:8px;background:var(--s);border:1px solid var(--b);font-size:11px">legal.tsx</div>
+          </div>
+        </div>
+      </div>
+      <div class="divider" style="margin:8px 0"></div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="font-size:11px;font-weight:700;color:var(--pl);margin-bottom:4px">Design Patterns</div>
+        <div style="font-size:11px;color:var(--tm)">✦ All components inline in screen files</div>
+        <div style="font-size:11px;color:var(--tm)">✦ No global state:local React state per screen</div>
+        <div style="font-size:11px;color:var(--tm)">✦ Mock data arrays at top of each file</div>
+        <div style="font-size:11px;color:var(--tm)">✦ Animated.Value for all motion effects</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 11: DESIGN SYSTEM ══════════════════════ -->
+<div class="slide" id="s11">
+  <div style="max-width:1000px;width:100%">
+    <div style="margin-bottom:24px">
+      <div class="screen-num a1">Section 7</div>
+      <h2 class="title a2">Design <span class="gradient-text">System</span></h2>
+    </div>
+    <div class="flex gap-md" style="align-items:flex-start">
+      <div style="flex:1" class="fromL">
+        <h3 class="sub" style="font-size:13px;margin-bottom:10px">Color Palette</h3>
+        <div class="swatch-row" style="margin-bottom:20px">
+          <div class="swatch" style="background:#4F46E5">#4F46E5<br>Primary</div>
+          <div class="swatch" style="background:#818cf8">#818cf8<br>Light</div>
+          <div class="swatch" style="background:#22C55E">#22C55E<br>Success</div>
+          <div class="swatch" style="background:#F59E0B">#F59E0B<br>Warning</div>
+          <div class="swatch" style="background:#EF4444">#EF4444<br>Error</div>
+          <div class="swatch" style="background:#a855f7">#a855f7<br>Purple</div>
+        </div>
+        <h3 class="sub" style="font-size:13px;margin-bottom:10px">Typography:Poppins</h3>
+        <div class="card" style="padding:14px;display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:22px;font-weight:900;letter-spacing:-1px;color:#fff;font-family:'Poppins',sans-serif">Black 900:Titles</div>
+          <div style="font-size:16px;font-weight:700;color:rgba(255,255,255,.9);font-family:'Poppins',sans-serif">Bold 700:Section Headers</div>
+          <div style="font-size:13px;font-weight:600;color:rgba(255,255,255,.75);font-family:'Poppins',sans-serif">SemiBold 600:Card Titles</div>
+          <div style="font-size:12px;font-weight:400;color:rgba(255,255,255,.5);font-family:'Poppins',sans-serif">Regular 400:Body Text & Notes</div>
+        </div>
+      </div>
+      <div style="flex:1" class="fromR">
+        <h3 class="sub" style="font-size:13px;margin-bottom:10px">Key Components</h3>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div class="card" style="padding:12px">
+            <div style="font-size:11px;font-weight:700;margin-bottom:4px">Glass Morphism Card</div>
+            <div style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.2);
+              border-radius:10px;padding:8px 12px;font-size:11px;backdrop-filter:blur(8px)">
+              rgba(255,255,255, 0.32) + 1.5px border
+            </div>
+          </div>
+          <div class="card" style="padding:12px">
+            <div style="font-size:11px;font-weight:700;margin-bottom:6px">Status Badges</div>
+            <div class="flex gap-sm">
+              <span class="chip chip-g" style="font-size:9px">● Available</span>
+              <span class="chip chip-a" style="font-size:9px">● Limited</span>
+              <span class="chip chip-r" style="font-size:9px">● Full</span>
+            </div>
+          </div>
+          <div class="card" style="padding:12px">
+            <div style="font-size:11px;font-weight:700;margin-bottom:6px">Progress Bar</div>
+            <div style="background:rgba(255,255,255,.1);border-radius:4px;height:8px">
+              <div style="width:65%;height:100%;border-radius:4px;background:linear-gradient(90deg,#4F46E5,#818cf8)"></div>
+            </div>
+            <div style="font-size:10px;color:var(--ts);margin-top:4px">Animation: Easing.out(Easing.cubic) 380ms</div>
+          </div>
+          <div class="card" style="padding:12px">
+            <div style="font-size:11px;font-weight:700;margin-bottom:6px">Bottom Sheet Spring</div>
+            <div style="font-size:10px;color:var(--tm)">tension: <b style="color:var(--pl)">68</b> &nbsp;•&nbsp; friction: <b style="color:var(--pl)">10</b> &nbsp;•&nbsp; duration: <b style="color:var(--pl)">440ms</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 12: BUGS & TESTING ══════════════════════ -->
+<div class="slide" id="s12">
+  <div class="split max-w" style="gap:40px;align-items:flex-start">
+    <div style="flex:1">
+      <div class="screen-num a1">Section 5 & 6</div>
+      <h2 class="title a2">Known Bugs &<br><span class="gradient-text">Testing</span></h2>
+      <div class="rule a2"></div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px" class="a3">
+        <div class="bug-item">
+          <div class="bug-num">1</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:2px">Android Dropdown Flicker</div>
+            <div style="font-size:11px;color:var(--ts)">Backdrop renders one frame late on first open in Android emulator. No fix attempted:likely a Reanimated timing issue.</div>
+          </div>
+        </div>
+        <div class="bug-item">
+          <div class="bug-num">2</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:2px">Progress Bar Jump on Init</div>
+            <div style="font-size:11px;color:var(--ts)">Width animation starts from 0 → jumps to value on first render. State initialization order issue in FlatList.</div>
+          </div>
+        </div>
+        <div class="bug-item">
+          <div class="bug-num">3</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:2px">Settings Don't Persist</div>
+            <div style="font-size:11px;color:var(--ts)">All settings (name, email, toggle states) reset when app closes. No AsyncStorage/persistence layer implemented yet.</div>
+          </div>
+        </div>
+        <div class="bug-item">
+          <div class="bug-num">4</div>
+          <div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:2px">Report Modal Data Not Saved</div>
+            <div style="font-size:11px;color:var(--ts)">Tapping "Submit" in ReportModal shows success state but data is never sent anywhere:no API connected.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="flex:1" class="fromR">
+      <h3 class="sub" style="font-size:16px;margin-bottom:14px">Testing Status</h3>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="card" style="padding:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-size:12px;font-weight:700">Unit Tests</div>
+            <span class="chip chip-r" style="font-size:9px">None</span>
+          </div>
+          <div style="font-size:11px;color:var(--ts)">No automated unit tests written. Jest + Testing Library recommended for next sprint.</div>
+        </div>
+        <div class="card" style="padding:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-size:12px;font-weight:700">Manual Testing</div>
+            <span class="chip chip-g" style="font-size:9px">Done</span>
+          </div>
+          <div style="font-size:11px;color:var(--ts)">All 6 screens tested on iOS Simulator. Navigation flow, dropdowns, tab switching, modals verified.</div>
+        </div>
+        <div class="card" style="padding:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-size:12px;font-weight:700">Integration Tests</div>
+            <span class="chip chip-r" style="font-size:9px">None</span>
+          </div>
+          <div style="font-size:11px;color:var(--ts)">N/A:no backend connected yet. Will become critical once API is live.</div>
+        </div>
+        <div class="card" style="padding:14px;background:rgba(79,70,229,.08);border-color:rgba(79,70,229,.25)">
+          <div style="font-size:11px;font-weight:700;color:var(--pl);margin-bottom:6px">▶ How to Run</div>
+          <div class="tree" style="font-size:10px;padding:8px;border-radius:8px;line-height:1.8">
+            <span class="gray">$</span> cd campusparkingtracker<br>
+            <span class="gray">$</span> npx expo start<br>
+            <span class="gray"># Scan QR in Expo Go app</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 13: TIPS ══════════════════════ -->
+<div class="slide" id="s13">
+  <div style="max-width:1000px;width:100%">
+    <div style="text-align:center;margin-bottom:28px">
+      <div class="screen-num a1">Section 8</div>
+      <h2 class="title a2">Tips for the <span class="gradient-text">Next Team</span></h2>
+      <p class="body a3" style="font-size:13px;margin-top:6px">Where to start, what to expect, and how to win fast</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="a3">
+      <div class="tip-item card" style="padding:16px">
+        <div class="tip-num">1</div>
+        <div class="tip-text">
+          <h4>Start with AsyncStorage</h4>
+          <p>The #1 quick win. Add persistence in one afternoon:settings, profile, and session data should survive app restart. Use <code style="color:var(--pl)">@react-native-async-storage/async-storage</code>.</p>
+        </div>
+      </div>
+      <div class="tip-item card" style="padding:16px">
+        <div class="tip-num">2</div>
+        <div class="tip-text">
+          <h4>Mock data is well-structured</h4>
+          <p>All mock arrays at the top of each screen file match a clean schema. When you connect a real API, just swap the data source:components need no changes.</p>
+        </div>
+      </div>
+      <div class="tip-item card" style="padding:16px">
+        <div class="tip-num">3</div>
+        <div class="tip-text">
+          <h4>Animations are production-ready</h4>
+          <p>Don't touch the Reanimated springs unless needed. The tension:68 / friction:10 values took many iterations to feel right.</p>
+        </div>
+      </div>
+      <div class="tip-item card" style="padding:16px">
+        <div class="tip-num">4</div>
+        <div class="tip-text">
+          <h4>Backend is the critical path</h4>
+          <p>Auth + real parking data are HIGH priority blockers for everything else. Consider Firebase for quick auth, or SDSU's portal API if accessible.</p>
+        </div>
+      </div>
+      <div class="tip-item card" style="padding:16px">
+        <div class="tip-num">5</div>
+        <div class="tip-text">
+          <h4>Test on real Android early</h4>
+          <p>The iOS Simulator behaves differently from Android for bottom sheets and backdrop overlays. Catch the Android dropdown flicker bug before it gets worse.</p>
+        </div>
+      </div>
+      <div class="tip-item card" style="padding:16px">
+        <div class="tip-num">6</div>
+        <div class="tip-text">
+          <h4>Keep components inline (for now)</h4>
+          <p>Until the app is 3–4x larger, extracting components into separate files adds overhead. Wait until real data forces you to refactor.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ SLIDE 14: REFLECTION ══════════════════════ -->
+<div class="slide" id="s14">
+  <div style="max-width:1000px;width:100%;text-align:center">
+    <div class="screen-num a1">Section 9</div>
+    <h2 class="title a2" style="margin-bottom:6px">Team <span class="gradient-text">Reflection</span></h2>
+    <p class="body a3" style="font-size:13px;margin-bottom:28px">What we learned building CampusPark</p>
+    <div class="refl-grid a3">
+      <div class="refl-card worked">
+        <div style="font-size:9px;font-weight:700;font-family:'Space Mono',monospace;color:#4ade80;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">01</div>
+        <h4 style="color:#4ade80">What Worked Well</h4>
+        <p>Expo Router's file-based routing kept navigation clean and fast. Glass morphism UI came together beautifully with just CSS. Splitting into 6 focused screen files made collaboration manageable. The Reanimated spring physics feel genuinely premium.</p>
+      </div>
+      <div class="refl-card different">
+        <div style="font-size:9px;font-weight:700;font-family:'Space Mono',monospace;color:#fbbf24;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">02</div>
+        <h4 style="color:#fbbf24">Do Differently Next Time</h4>
+        <p>Plan the data layer before building UI. We built beautiful screens around mock arrays:but connecting a real API now means refactoring data flows. Also: write tests from day one, even simple smoke tests.</p>
+      </div>
+      <div class="refl-card challenge">
+        <div style="font-size:9px;font-weight:700;font-family:'Space Mono',monospace;color:#f87171;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">03</div>
+        <h4 style="color:#f87171">Biggest Challenge</h4>
+        <p>Getting the animated bottom sheet to feel right on both iOS and Android simultaneously. The backdrop fade timing, spring physics, and safe area insets each had platform-specific quirks that took significant iteration to resolve.</p>
+      </div>
+    </div>
+    <div class="flex center gap-md a4" style="margin-top:32px;flex-wrap:wrap">
+      <div class="card" style="padding:14px 24px;display:flex;gap:12px;align-items:center">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(79,70,229,.15);border:1px solid rgba(79,70,229,.25);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-family:'Space Mono',monospace;color:#818cf8">GH</div>
+        <div style="text-align:left">
+          <div style="font-size:11px;color:var(--ts);margin-bottom:2px">Repository</div>
+          <div style="font-size:12px;font-weight:600;font-family:'Space Mono',monospace;color:var(--pl)">github.com/amarendra-008/CampusParkingTracker</div>
+        </div>
+      </div>
+      <div class="card" style="padding:14px 24px;display:flex;gap:12px;align-items:center">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(79,70,229,.15);border:1px solid rgba(79,70,229,.25);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;font-family:'Space Mono',monospace;color:#818cf8">SD</div>
+        <div style="text-align:left">
+          <div style="font-size:11px;color:var(--ts);margin-bottom:2px">Course</div>
+          <div style="font-size:12px;font-weight:600;color:#fff">CS 250 • San Diego State University • March 2026</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end #pres -->
+
+<!-- Navigation -->
+<button class="nav-btn" id="prev" onclick="navigate(-1)">←</button>
+<button class="nav-btn" id="next" onclick="navigate(1)">→</button>
+<div id="dots"></div>
+<div id="slide-counter"></div>
+<div class="slide-label" id="slide-label"></div>
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const dotsEl = document.getElementById('dots');
+const counter = document.getElementById('slide-counter');
+const slideLabel = document.getElementById('slide-label');
+let current = 0;
+
+const labels = [
+  'Cover','Project Overview','Team Contributions','Login Screen','Home Screen',
+  'Alerts & History','Settings & Legal','Features Completed',
+  'Features To-Do','Tech Stack','Architecture','Design System',
+  'Bugs & Testing','Tips for Next Team','Team Reflection'
+];
+
+// Build dots
+slides.forEach((_,i) => {
+  const d = document.createElement('div');
+  d.className = 'dot' + (i===0?' active':'');
+  d.onclick = () => goTo(i);
+  dotsEl.appendChild(d);
+});
+
+function updateUI(){
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active',i===current));
+  counter.textContent = (current+1) + ' / ' + slides.length;
+  slideLabel.textContent = labels[current] || '';
+  document.getElementById('prev').style.opacity = current===0?'0.3':'1';
+  document.getElementById('next').style.opacity = current===slides.length-1?'0.3':'1';
+}
+
+function goTo(idx){
+  if(idx<0||idx>=slides.length||idx===current) return;
+  slides[current].classList.remove('active');
+  slides[current].classList.add('exit-up');
+  const prev=current; current=idx;
+  setTimeout(()=>{ slides[prev].classList.remove('exit-up'); slides[current].classList.add('active'); updateUI(); onSlideEnter(current); },50);
+}
+
+function navigate(dir){
+  const next = current + dir;
+  if(next<0||next>=slides.length) return;
+  slides[current].classList.remove('active');
+  slides[current].classList.add('exit-up');
+  current = next;
+  setTimeout(()=>{
+    document.querySelectorAll('.slide.exit-up').forEach(s=>s.classList.remove('exit-up'));
+    slides[current].classList.add('active');
+    updateUI();
+    onSlideEnter(current);
+  },80);
+}
+
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' ') { e.preventDefault(); navigate(1); }
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') { e.preventDefault(); navigate(-1); }
+  if(e.key==='Home') goTo(0);
+  if(e.key==='End') goTo(slides.length-1);
+});
+
+// ── SLIDE-SPECIFIC ANIMATIONS ──
+function onSlideEnter(idx){
+  // Status ring + stat counters (slide 2 = index 1)
+  if(idx===1){
+    // Ring: animate conic-gradient and counter 0 → 50
+    const ring=document.querySelector('.status-ring');
+    const pct=document.getElementById('s2-ring');
+    if(ring&&pct){
+      ring.style.setProperty('--rp','0%');
+      pct.textContent='0%';
+      const dur=1100;const target=50;const start=performance.now();
+      function tickRing(now){
+        const p=Math.min((now-start)/dur,1);
+        const v=Math.round(p*p*(3-2*p)*target);
+        pct.textContent=v+'%';
+        ring.style.setProperty('--rp',v+'%');
+        if(p<1)requestAnimationFrame(tickRing);
+      }
+      requestAnimationFrame(tickRing);
+    }
+    // Stat card counters
+    [{id:'s2-screens',val:6},{id:'s2-features',val:10},{id:'s2-todos',val:8}].forEach(({id,val},i)=>{
+      const el=document.getElementById(id);
+      if(!el)return;
+      el.textContent='0';
+      setTimeout(()=>{
+        const dur=700;const start=performance.now();
+        function tickStat(now){
+          const p=Math.min((now-start)/dur,1);
+          el.textContent=Math.round(p*p*(3-2*p)*val);
+          if(p<1)requestAnimationFrame(tickStat);
+        }
+        requestAnimationFrame(tickStat);
+      },200+i*130);
+    });
+  }
+  // Progress bars animate on home screen slides (index 4 = s4, index 5 = s5)
+  if(idx===4||idx===5){
+    document.querySelectorAll('#s'+idx+' .progress-fill').forEach((el,i)=>{
+      const w=el.style.width;el.style.width='0';
+      setTimeout(()=>{el.style.transition='width 0.8s cubic-bezier(.4,0,.2,1)';el.style.width=w;},80+i*60);
+    });
+  }
+}
+
+
+// Touch/swipe
+let tx=0;
+document.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+document.addEventListener('touchend',e=>{
+  const dx=tx-e.changedTouches[0].clientX;
+  if(Math.abs(dx)>50) navigate(dx>0?1:-1);
+},{passive:true});
+
+updateUI();
+onSlideEnter(0);
+</script>
+</body>
+</html>
